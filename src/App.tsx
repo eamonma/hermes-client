@@ -70,7 +70,7 @@ const AppRouter = () => {
     return (
         <ApolloProvider client={client}>
             <Particles
-                style={{ zIndex: 0, position: "fixed" }}
+                style={{ zIndex: -10, position: "fixed" }}
                 params={{
                     particles: {
                         number: {

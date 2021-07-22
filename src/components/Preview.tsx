@@ -39,15 +39,16 @@ const Preview = ({ location }: { location: any }) => {
     const { id, fileId } = useParams<Parameters>()
     // const [url, setUrl] = useState<string>("")
 
-    const [signFileUrl, { data, loading: fileLoading }] = useMutation(gql`
-        mutation signFileUrl($id: String!, $passphrase: String) {
-            signFileUrl(
-                id: $id
-                clientRequesting: true
-                passphrase: $passphrase
-            )
-        }
-    `)
+    const [signFileUrl, { data, loading: fileLoading, error: fileError }] =
+        useMutation(gql`
+            mutation signFileUrl($id: String!, $passphrase: String) {
+                signFileUrl(
+                    id: $id
+                    clientRequesting: true
+                    passphrase: $passphrase
+                )
+            }
+        `)
 
     const {
         loading,
@@ -91,11 +92,12 @@ const Preview = ({ location }: { location: any }) => {
         <div>
             <ProjectContainerComponent>
                 <ProjectLayoutPreview previewing={true} location={location} />
-                {fileLoading || loading ? (
+                {fileLoading || (loading && !error && !fileError) ? (
                     <ClipLoader color="#eee" />
                 ) : (
                     <Viewer data={data} fileData={fileData} mime={mime} />
                 )}
+                {(error || fileError) && <p>Error loading media.</p>}
             </ProjectContainerComponent>
         </div>
     )
