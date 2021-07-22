@@ -8,6 +8,8 @@ import styled from "styled-components"
 import { AppContext } from "../AppContext"
 import ProjectLayout from "./ProjectLayout"
 import ReactPlayer from "react-player"
+import Viewer from "./Viewer"
+import ClipLoader from "react-spinners/ClipLoader"
 
 const ProjectContainerComponent = styled.div<{ children: any }>`
     width: 100%;
@@ -27,18 +29,6 @@ const ProjectLayoutPreview = styled(ProjectLayout)<{
     background-color: red;
 `
 
-const PlayerComponent = styled(motion.div)`
-    z-index: 100;
-    width: calc(100vw - 56rem);
-    max-height: 100vh;
-    overflow-y: scroll;
-
-    display: flex;
-    justify-content: center;
-    /* background: #000; */
-    /* width: 60rem; */
-`
-
 interface Parameters {
     id: string
     fileId: string
@@ -49,7 +39,7 @@ const Preview = ({ location }: { location: any }) => {
     const { id, fileId } = useParams<Parameters>()
     // const [url, setUrl] = useState<string>("")
 
-    const [signFileUrl, { data }] = useMutation(gql`
+    const [signFileUrl, { data, loading: fileLoading }] = useMutation(gql`
         mutation signFileUrl($id: String!, $passphrase: String) {
             signFileUrl(
                 id: $id
@@ -59,26 +49,31 @@ const Preview = ({ location }: { location: any }) => {
         }
     `)
 
-    const query = gql`
-        query File($id: String!, $passphrase: String!) {
-            getFile(id: $id, passphrase: $passphrase, clientRequesting: true) {
-                mime
-            }
-        }
-    `
-
-    signFileUrl({
-        variables: {
-            id: fileId,
-            passphrase,
-        },
-    })
-
     const {
         loading,
         data: fileData,
         error,
-    } = useQuery(query, {
+    } = useQuery(
+        gql`
+            query File($id: String!, $passphrase: String!) {
+                getFile(
+                    id: $id
+                    passphrase: $passphrase
+                    clientRequesting: true
+                ) {
+                    mime
+                }
+            }
+        `,
+        {
+            variables: {
+                id: fileId,
+                passphrase,
+            },
+        }
+    )
+
+    signFileUrl({
         variables: {
             id: fileId,
             passphrase,
@@ -96,29 +91,11 @@ const Preview = ({ location }: { location: any }) => {
         <div>
             <ProjectContainerComponent>
                 <ProjectLayoutPreview previewing={true} location={location} />
-                <PlayerComponent
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                >
-                    {data && fileData && mime && mime.includes("video") ? (
-                        <ReactPlayer
-                            width="100%"
-                            height="100%"
-                            url={data.signFileUrl}
-                            controls={true}
-                        />
-                    ) : mime.includes("image") ? (
-                        <img src={data.signFileUrl} alt="" />
-                    ) : (
-                        // <iframe
-                        //     src={data.signFileUrl}
-                        //     title={data.signFileUrl}
-                        // ></iframe>
-
-                        <p>ss</p>
-                    )}
-                </PlayerComponent>
+                {fileLoading || loading ? (
+                    <ClipLoader color="#eee" />
+                ) : (
+                    <Viewer data={data} fileData={fileData} mime={mime} />
+                )}
             </ProjectContainerComponent>
         </div>
     )
