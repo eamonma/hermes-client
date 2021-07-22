@@ -79,21 +79,16 @@ const Preview = ({ location }: { location: any }) => {
         },
     })
 
-    let mime: string = ""
-
-    if (data) {
-        mime = data.getFile.mime
-        console.log(fileData)
-    }
-
     return (
         <div>
             <ProjectContainerComponent>
                 <ProjectLayoutPreview previewing={true} location={location} />
-                {fileLoading || (loading && !error && !fileError) ? (
+                {(fileLoading || loading || !data || !fileData) &&
+                !error &&
+                !fileError ? (
                     <ClipLoader color="#eee" />
                 ) : (
-                    <Viewer fileData={fileData} mime={mime} />
+                    <Viewer fileData={fileData} mime={data.getFile.mime} />
                 )}
                 {(error || fileError) && <p>Error loading media.</p>}
             </ProjectContainerComponent>
