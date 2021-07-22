@@ -90,6 +90,7 @@ const Project = ({
             {project.files.map((file: any) => {
                 return (
                     <FileListItem
+                        key={file.id}
                         previewing={previewing}
                         file={file}
                         shortId={project.shortId}

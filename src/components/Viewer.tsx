@@ -15,15 +15,7 @@ const PlayerComponent = styled(motion.div)`
     /* width: 60rem; */
 `
 
-const Viewer = ({
-    data,
-    fileData,
-    mime,
-}: {
-    data: any
-    fileData: any
-    mime: string
-}) => {
+const Viewer = ({ fileData, mime }: { fileData: any; mime: string }) => {
     let Component
 
     if (mime.includes("video")) {
@@ -31,12 +23,12 @@ const Viewer = ({
             <ReactPlayer
                 width="100%"
                 height="100%"
-                url={data.signFileUrl}
+                url={fileData.signFileUrl}
                 controls={true}
             />
         )
     } else if (mime.includes("image")) {
-        Component = () => <img src={data.signFileUrl} alt="" />
+        Component = () => <img src={fileData.signFileUrl} alt="" />
     } else {
         Component = () => <p>Error loading media.</p>
     }

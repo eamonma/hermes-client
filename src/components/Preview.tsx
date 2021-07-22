@@ -39,22 +39,20 @@ const Preview = ({ location }: { location: any }) => {
     const { id, fileId } = useParams<Parameters>()
     // const [url, setUrl] = useState<string>("")
 
-    const [signFileUrl, { data, loading: fileLoading, error: fileError }] =
-        useMutation(gql`
-            mutation signFileUrl($id: String!, $passphrase: String) {
-                signFileUrl(
-                    id: $id
-                    clientRequesting: true
-                    passphrase: $passphrase
-                )
-            }
-        `)
+    const [
+        signFileUrl,
+        { data: fileData, loading: fileLoading, error: fileError },
+    ] = useMutation(gql`
+        mutation signFileUrl($id: String!, $passphrase: String) {
+            signFileUrl(
+                id: $id
+                clientRequesting: true
+                passphrase: $passphrase
+            )
+        }
+    `)
 
-    const {
-        loading,
-        data: fileData,
-        error,
-    } = useQuery(
+    const { loading, data, error } = useQuery(
         gql`
             query File($id: String!, $passphrase: String!) {
                 getFile(
@@ -83,8 +81,8 @@ const Preview = ({ location }: { location: any }) => {
 
     let mime: string = ""
 
-    if (fileData && data) {
-        mime = fileData.getFile.mime
+    if (data) {
+        mime = data.getFile.mime
         console.log(fileData)
     }
 
@@ -95,7 +93,7 @@ const Preview = ({ location }: { location: any }) => {
                 {fileLoading || (loading && !error && !fileError) ? (
                     <ClipLoader color="#eee" />
                 ) : (
-                    <Viewer data={data} fileData={fileData} mime={mime} />
+                    <Viewer fileData={fileData} mime={mime} />
                 )}
                 {(error || fileError) && <p>Error loading media.</p>}
             </ProjectContainerComponent>
